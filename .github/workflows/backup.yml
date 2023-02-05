@@ -68,26 +68,7 @@ jobs:
           def export():
               task_id = request('enqueueTask', ENQUEUE_TASK_PARAM).get('taskId')
               print(f'Enqueued task {task_id}')
-
-              while True:
-                  time.sleep(2)
-                  tasks = request("getTasks", {"taskIds": [task_id]}).get('results')
-                  task = next(t for t in tasks if t.get('id') == task_id)
-                  print(f'\rPages exported: {task.get("status").get("pagesExported")}', end="")
-
-                  if task.get('state') == 'success':
-                      break
-
-              export_url = task.get('status').get('exportURL')
-              print(f'\nExport created, downloading: {export_url}')
-
-              urllib.request.urlretrieve(
-                  export_url, EXPORT_FILENAME,
-                  reporthook=lambda c, bs, ts: print(f"\r{int(c * bs * 100 / ts)}%", end="")
-              )
-              print(f'\nDownload complete: {EXPORT_FILENAME}')
-
-
+              
           if __name__ == "__main__":
               export()
           
@@ -114,7 +95,7 @@ jobs:
       - name: 💾 Backup
         run: |
           chmod +x notion_export_gen.py && chmod +x merge_gen.sh
-          ./notion_export_gen.py && ./merge_gen.sh
+          ./notion_export_gen.py # && ./merge_gen.sh
 
         env:
           NOTION_TOKEN_V2: ${{ secrets.NOTION_TOKEN_V2 }}
